@@ -4,29 +4,35 @@ import { FiPower, FiTrash2 } from 'react-icons/fi'
 import logoImg from '../../assets/logo.svg'
 import './styles.css'
 import api from '../../services/api';
+import { logout } from "../../services/auth"
 
 export default function Profile() {
     const history = useHistory()
-    const [incidents, setIncidents] = useState([]) 
+    const [incidents, setIncidents] = useState([])
 
     const ongName = localStorage.getItem('ongName')
-    const ongId = localStorage.getItem('ongId')
+    const ongEmail = localStorage.getItem('ongEmail')
 
     useEffect(() => {
         api.get('profile', {
             headers: {
-                Authorization: ongId
+                email: ongEmail
             }
-        }).then(response => {
+        }).then(response => {    
             setIncidents(response.data)
+        }).catch(response =>{
+            if(response.response.status === 401)
+                history.push('/')
+                console.log(response.response.status)
         })
-    }, [ongId])
+    }, 
+    [ongEmail,history])
 
     async function handleDeleteIncident(id){
         try{
             await api.delete(`incidents/${id}`, {
                 headers: {
-                    Authorization: ongId
+                    email: ongEmail
                 }
             })
 
@@ -37,7 +43,7 @@ export default function Profile() {
     }
 
     function handleLogout(){
-        localStorage.clear()
+        logout()
         history.push('/')
     }
 

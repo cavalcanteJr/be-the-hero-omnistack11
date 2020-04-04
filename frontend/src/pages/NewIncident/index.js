@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../../services/api'
 import {Link, useHistory} from 'react-router-dom'
 import { FiArrowLeft } from 'react-icons/fi'
@@ -12,16 +12,30 @@ export default function NewIncident() {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [value, setValue] = useState('')
+  const ongEmail = localStorage.getItem('ongEmail')
+
+  useEffect(() => {
+    api.get('profile', {
+        headers: {
+            email: ongEmail
+        }
+    }).catch(response =>{
+        if(response.response.status === 401)
+            history.push('/')
+            console.log(response.response.status)
+    })
+}, 
+[ongEmail,history])
 
   async function handleNewIncident(e){
     e.preventDefault()
     const data = {title, description, value}
-    const ongId = localStorage.getItem('ongId')
+    const ongEmail = localStorage.getItem('ongEmail')
 
     try{
       await api.post('incidents', data, {
         headers: {
-          Authorization: ongId
+          email: ongEmail
         }
       })
 

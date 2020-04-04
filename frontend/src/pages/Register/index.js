@@ -13,24 +13,26 @@ export default function Register() {
   const [whatsapp, setWhatsapp] = useState('')
   const [city, setCity] = useState('')
   const [uf, setUf] = useState('')
+  const [password, setPassword] = useState('')
+  
 
   async function handleRegister(e){
     e.preventDefault()
 
-    const data = {name, email, whatsapp, city, uf}
-
+    const data = {name, email, password, whatsapp, city, uf}
     const response = await api.post('ongs', data)
 
+    localStorage.setItem('ongName', response.data.name)
+    localStorage.setItem('@behero-Token', response.data.token)
+    localStorage.setItem('ongEmail', response.data.email)
+
     try {
-      alert(`Seu ID de acesse: ${response.data.id}`)
       history.push('/profile')
     } catch {
       alert('Erro no cadastro, tente novamente')
     }
 
-
   }
-
 
   return (
     <div className="register-container">
@@ -58,6 +60,8 @@ export default function Register() {
               <input placeholder="UF" style={{width: 80}}
               value={uf} onChange={e => setUf(e.target.value)}/>
             </div>
+            <input type="password" placeholder="Password"
+            value={password} onChange={e => setPassword(e.target.value)} />
             <button className="button" type="submit">Cadastrar</button>
           </form>
         
