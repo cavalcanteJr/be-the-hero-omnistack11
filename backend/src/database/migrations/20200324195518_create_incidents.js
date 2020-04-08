@@ -5,6 +5,8 @@ exports.up = function(knex) {
         table.string('title').notNullable()
         table.string('description').notNullable()
         table.decimal('value').notNullable()
+        table.string('imageurl')
+        table.string('filename')
 
         table.string('ong_email').notNullable()
 

@@ -18,10 +18,14 @@ module.exports = {
 
         const id = generateUniqueId()
 
-        if (ong) {return response.status(400).json({error: 'One ONG found with this email'})}
+        if (ong) {return response.status(400)
+            .json({error: 'One ONG found with this email'})}
             
         const passwordCript = await bcrypt.hash(password, 10)
-        await connection('ongs').insert({id, name, email, password: passwordCript, whatsapp, city, uf})
+        await connection('ongs').insert({
+            id, name, email, 
+            password: passwordCript,
+             whatsapp, city, uf})
         const token = generateToken(id)
 
         return response.json({name, email, token})

@@ -1,4 +1,7 @@
 const express = require('express')
+const multer = require("multer");
+const path = require("path");
+const multerConfig = require("./middlewares/multer");
 const { celebrate, Segments, Joi } = require('celebrate')
 
 const OngController = require('./controllers/OngController')
@@ -10,6 +13,7 @@ const authMiddleware = require('./middlewares/auth')
 
 const routes = express.Router()
 
+routes.use('/files', express.static(path.resolve(__dirname, '..', 'tmp', 'uploads')))
 
 routes.post('/ongs', celebrate({
     [Segments.BODY]: Joi.object().keys({
@@ -37,18 +41,20 @@ routes.get('/incidents', celebrate({
     [Segments.QUERY]: Joi.object().keys({
         page: Joi.number()
     })
-}), IncidentController.index)
+}),  IncidentController.index)
 
-routes.post('/incidents', celebrate({
-    [Segments.HEADERS]: Joi.object({
-        authorization: Joi.string().required(), 
-    }).unknown(),
-    [Segments.BODY]: Joi.object().keys({
-        title: Joi.string().required(),
-        description: Joi.string().required(),
-        value:  Joi.number().required(),    
-    })
-}), IncidentController.create)
+// routes.post('/incidents', celebrate({
+//     [Segments.HEADERS]: Joi.object({
+//         authorization: Joi.string().required(), 
+//     }).unknown(),
+//     [Segments.BODY]: Joi.object().keys({
+//         title: Joi.string().required(),
+//         description: Joi.string().required(),
+//         value:  Joi.number().required(),    
+//     })
+// }), multer(multerConfig).single("file"), IncidentController.create)
+
+routes.post('/incidents',multer(multerConfig).single("file"), IncidentController.create)
 
 routes.delete('/incidents/:id', celebrate({
     [Segments.PARAMS]: Joi.object().keys({

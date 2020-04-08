@@ -1,7 +1,7 @@
+require('dotenv').config()
 const jwt = require('jsonwebtoken')
-const authConfig = require('../config/auth')
 module.exports = function genereteUniqueId(id){
-    return jwt.sign({ id }, authConfig.secret, {
+    return jwt.sign({ id }, process.env.SECRET, {
         expiresIn: 86400,
     })
 }

@@ -1,4 +1,7 @@
 const connection = require('../database/connection')
+const fs = require('fs')
+const path = require('path')
+const { promisify } = require('util')
 
 module.exports = {
     async index(request, response) {
@@ -17,11 +20,16 @@ module.exports = {
     },
 
     async create(request, response){
+        const { key } = request.file
+        let { keylocation: imageurl ='' } = request.file
         const {title, description, value} = request.body
         const ong_email = request.headers.email
 
+        if (!imageurl)
+            imageurl = `http://localhost:3333/files/${key}`
+
         const [id] = await connection('incidents').insert({
-            title, description, value, ong_email
+            title, description, value, ong_email, filename: key, imageurl
         })
         return response.json({id})
     },
@@ -33,12 +41,15 @@ module.exports = {
         const incident = await connection('incidents')
         .where('id', id)
         .select('ong_email')
+        .select('filename')
         .first()
-
         if (incident.ong_email !== ong_email) {
-            return response.status(401).json({error: 'Operatiuon not permitted'})
+            return response.status(401)
+            .json({error: 'Operatiuon not permitted'})
         }
-        await connection("incidents").where('id', id).delete()
+        
+        if(await connection("incidents").where('id', id).delete())
+            promisify(fs.unlink)(path.resolve(__dirname, '..','..', 'tmp', 'uploads', incident.filename))
 
         return response.status(204).send()
     }
